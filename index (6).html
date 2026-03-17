@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análise de Perfil Instagram — Leandro Coser</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pptxgenjs/3.12.0/pptxgen.bundle.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --teal: #0D7860; --teal-dark: #085444; --teal-xl: #042f25;
+    --lime: #CCFF33; --lime-text: #3a5500;
+    --off-white: #F2F7F5; --surface: #FFFFFF;
+    --border: rgba(13,120,96,0.15);
+    --text: #0f1f1b; --text-mid: #3D6B5E; --text-soft: #7DAA9A;
+    --radius: 12px; --radius-lg: 20px;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--off-white); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(4,47,37,0.97); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: space-between; padding: 0 2rem; height: 64px; border-bottom: 1px solid rgba(204,255,51,0.12); }
+  .nav-logo { display: flex; align-items: center; gap: 12px; }
+  .nav-logo-mark { width: 38px; height: 38px; border-radius: 50%; border: 1.5px solid var(--lime); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; color: var(--lime); }
+  .nav-logo-name { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; color: #fff; }
+  .nav-logo-sub { font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 2px; margin-top: -2px; }
+  .nav-badge { background: var(--lime); color: var(--lime-text); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 10px; padding: 5px 12px; border-radius: 100px; letter-spacing: 1.5px; }
+
+  .hero { background: var(--teal-xl); padding: 120px 2rem 72px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 100%, rgba(204,255,51,0.07) 0%, transparent 70%); }
+  .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(204,255,51,0.1); border: 1px solid rgba(204,255,51,0.25); color: var(--lime); font-size: 11px; font-weight: 500; padding: 6px 14px; border-radius: 100px; letter-spacing: 2px; margin-bottom: 20px; }
+  .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--lime); }
+  .hero h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(2rem, 5vw, 3.6rem); color: #fff; line-height: 1.1; margin-bottom: 14px; }
+  .hero h1 span { color: var(--lime); }
+  .hero p { font-size: 1rem; color: rgba(255,255,255,0.55); max-width: 520px; margin: 0 auto 12px; line-height: 1.7; }
+  .hero-note { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 100px; padding: 7px 16px; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 36px; }
+  .hero-steps { display: flex; justify-content: center; align-items: center; gap: 0; max-width: 520px; margin: 0 auto; flex-wrap: wrap; gap: 4px; }
+  .hero-step { display: flex; align-items: center; gap: 8px; }
+  .hero-step-n { width: 26px; height: 26px; border-radius: 50%; background: var(--lime); color: var(--lime-text); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .hero-step-label { font-size: 12px; color: rgba(255,255,255,0.65); white-space: nowrap; }
+  .hero-step-div { width: 32px; height: 1px; background: rgba(255,255,255,0.18); margin: 0 4px; }
+
+  main { max-width: 880px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+  .api-card { background: var(--teal-xl); border: 1px solid rgba(204,255,51,0.2); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .api-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .api-info { flex: 1; min-width: 180px; }
+  .api-info p { font-size: 13px; font-weight: 500; color: #fff; margin-bottom: 2px; }
+  .api-info span { font-size: 11px; color: rgba(255,255,255,0.45); }
+  .api-input-wrap { display: flex; gap: 8px; align-items: center; flex: 2; min-width: 260px; }
+  .api-input { flex: 1; padding: 9px 12px; border-radius: var(--radius); background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none; }
+  .api-input::placeholder { color: rgba(255,255,255,0.3); }
+  .api-input:focus { border-color: var(--lime); }
+  .api-save { padding: 9px 16px; border-radius: var(--radius); background: var(--lime); color: var(--lime-text); border: none; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer; transition: filter 0.15s; }
+  .api-save:hover { filter: brightness(1.05); }
+  .api-status { font-size: 11px; color: var(--lime); display: none; }
+
+  .progress-wrap { margin-bottom: 2rem; }
+  .progress-bar-bg { height: 4px; background: rgba(13,120,96,0.15); border-radius: 2px; margin-bottom: 1.25rem; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--teal); border-radius: 2px; transition: width 0.4s ease; width: 33%; }
+  .progress-steps { display: flex; justify-content: space-between; }
+  .prog-step { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .prog-step-n { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--text-soft); background: var(--surface); transition: all 0.25s; }
+  .prog-step.active .prog-step-n, .prog-step.done .prog-step-n { background: var(--teal); border-color: var(--teal); color: #fff; }
+  .prog-step-label { font-size: 11px; color: var(--text-soft); font-weight: 500; }
+  .prog-step.active .prog-step-label { color: var(--teal); }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem 2rem; margin-bottom: 1.25rem; box-shadow: 0 2px 20px rgba(13,120,96,0.04); }
+  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+  .card-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+  .card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--text); }
+  .card-sub { font-size: 12px; color: var(--text-soft); margin-left: auto; }
+
+  .info-box { background: rgba(13,120,96,0.05); border: 1px solid rgba(13,120,96,0.14); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 1.25rem; display: flex; gap: 10px; align-items: flex-start; }
+  .info-box p { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+  .info-box strong { color: var(--teal); font-weight: 600; }
+
+  .section-label { font-size: 11px; font-weight: 700; color: var(--teal); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+  .grid2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1.25rem; }
+  .grid3 { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 1.25rem; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 500; color: var(--text-mid); }
+  .label-hint { font-size: 11px; color: var(--text-soft); font-weight: 400; }
+  input[type=text], input[type=number], select, textarea { width: 100%; padding: 10px 14px; background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: border-color 0.15s, box-shadow 0.15s; }
+  input:focus, select:focus, textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(13,120,96,0.1); background: #fff; }
+  textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  .check-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .check-opt input[type=checkbox] { display: none; }
+  .check-opt label { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 100px; border: 1px solid var(--border); background: var(--off-white); font-size: 13px; color: var(--text-mid); cursor: pointer; transition: all 0.15s; user-select: none; }
+  .check-opt input:checked + label { background: var(--teal); border-color: var(--teal); color: #fff; }
+
+  .eng-box { background: rgba(13,120,96,0.04); border: 1px solid rgba(13,120,96,0.14); border-radius: var(--radius); padding: 16px; margin-top: 8px; }
+  .eng-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+  .eng-label { font-size: 12px; color: var(--text-mid); margin-bottom: 4px; }
+  .eng-note { font-size: 11px; color: var(--text-soft); }
+  .eng-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; color: var(--teal); }
+  .eng-badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; display: none; }
+
+  .slider-group { display: flex; flex-direction: column; gap: 16px; }
+  .slider-row { display: grid; grid-template-columns: 170px 1fr 44px; align-items: center; gap: 14px; }
+  .slider-lbl { font-size: 13px; color: var(--text-mid); }
+  .slider-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--teal); text-align: center; background: rgba(13,120,96,0.08); border-radius: 8px; padding: 4px 0; }
+  input[type=range] { -webkit-appearance: none; appearance: none; height: 5px; border-radius: 3px; background: linear-gradient(to right, var(--teal) 0%, var(--teal) var(--pct,50%), rgba(13,120,96,0.15) var(--pct,50%)); cursor: pointer; width: 100%; }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--teal); border: 3px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.2); }
+
+  .btn-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.75rem; gap: 12px; }
+  .btn { padding: 11px 22px; border-radius: var(--radius); font-family: 'Syne', sans-serif; font-weight: 600; font-size: 13px; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text); transition: all 0.15s; }
+  .btn:hover { background: var(--off-white); border-color: var(--teal); }
+  .btn-primary { background: var(--teal); color: #fff; border-color: var(--teal); display: flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { background: var(--teal-dark); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .panel { display: none; } .panel.active { display: block; }
+
+  .loading-card { text-align: center; padding: 4rem 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+  .spinner-wrap { position: relative; width: 56px; height: 56px; margin: 0 auto 20px; }
+  .spinner { width: 56px; height: 56px; border-radius: 50%; border: 3px solid rgba(13,120,96,0.12); border-top-color: var(--teal); animation: spin 0.8s linear infinite; }
+  .spinner-dot { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 8px; height: 8px; border-radius: 50%; background: var(--lime); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-card h3 { font-family: 'Syne', sans-serif; font-size: 17px; color: var(--text); margin-bottom: 8px; }
+  .loading-card p { font-size: 13px; color: var(--text-soft); }
+
+  /* RESULT */
+  .result-client-bar { background: var(--teal-xl); border: 1px solid rgba(204,255,51,0.18); border-radius: var(--radius-lg); padding: 1.25rem 1.75rem; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .result-client-left { display: flex; align-items: center; gap: 14px; }
+  .result-avatar { width: 48px; height: 48px; border-radius: 50%; background: var(--lime); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--lime-text); flex-shrink: 0; }
+  .result-client-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 17px; color: #fff; line-height: 1.2; }
+  .result-client-meta { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 3px; }
+  .result-client-right { display: flex; gap: 8px; flex-wrap: wrap; }
+  .result-chip { font-size: 11px; font-weight: 500; padding: 5px 12px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.06); }
+  .result-chip.lime { background: rgba(204,255,51,0.12); border-color: rgba(204,255,51,0.3); color: var(--lime); }
+
+  .result-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
+
+  .metrics-mini { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .metric-mini { background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; }
+  .metric-mini-label { font-size: 10px; font-weight: 600; color: var(--text-soft); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 5px; }
+  .metric-mini-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; color: var(--teal); }
+  .metric-mini-sub { font-size: 10px; color: var(--text-soft); margin-top: 2px; }
+
+  .eng-highlight { background: var(--teal); border-radius: var(--radius); padding: 14px 16px; grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .eng-highlight-label { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .eng-highlight-sub { font-size: 10px; color: rgba(255,255,255,0.45); margin-top: 2px; }
+  .eng-highlight-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; color: #fff; }
+  .eng-highlight-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; background: rgba(255,255,255,0.15); color: #fff; }
+
+  .score-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .score-row:last-child { margin-bottom: 0; }
+  .score-lbl { font-size: 12px; color: var(--text-mid); width: 130px; flex-shrink: 0; }
+  .score-track { flex: 1; height: 7px; background: rgba(13,120,96,0.1); border-radius: 4px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 4px; transition: width 0.9s cubic-bezier(.22,1,.36,1); }
+  .score-num { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; text-align: center; width: 36px; flex-shrink: 0; padding: 2px 0; border-radius: 6px; }
+  .resumo-box { margin-top: 1rem; padding: 14px 16px; background: rgba(13,120,96,0.05); border-left: 3px solid var(--teal); border-radius: 0 var(--radius) var(--radius) 0; font-size: 13px; color: var(--text-mid); line-height: 1.7; font-style: italic; }
+
+  .tag-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { font-size: 12px; padding: 5px 13px; border-radius: 100px; border: 1px solid; font-weight: 500; }
+  .tag-ok   { background: #e8f5e9; border-color: #81c784; color: #1b5e20; }
+  .tag-warn { background: #fff8e1; border-color: #ffca28; color: #5d4000; }
+  .tag-info { background: #e3f2fd; border-color: #64b5f6; color: #0d47a1; }
+
+  .rec-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; }
+  .rec-card { background: var(--off-white); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+  .rec-card-top { display: flex; align-items: center; gap: 10px; }
+  .rec-num { width: 30px; height: 30px; border-radius: 50%; background: var(--teal); color: #fff; flex-shrink: 0; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; display: flex; align-items: center; justify-content: center; }
+  .rec-card h4 { font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
+  .rec-card p { font-size: 12px; color: var(--text-mid); line-height: 1.6; margin: 0; }
+
+  .plano-item { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .plano-item:last-child { border: none; padding-bottom: 0; }
+  .plano-num-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .plano-circle { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; }
+  .plano-circle.first { background: var(--lime); color: var(--lime-text); }
+  .plano-circle.rest  { background: var(--teal); color: #fff; }
+  .plano-line { width: 2px; flex: 1; min-height: 14px; background: var(--border); margin: 3px auto 0; }
+  .action-badge { font-size: 10px; font-weight: 700; background: var(--teal); color: #fff; padding: 3px 10px; border-radius: 100px; white-space: nowrap; flex-shrink: 0; font-family: 'Syne', sans-serif; margin-top: 7px; }
+  .action-text { font-size: 13px; color: var(--text); line-height: 1.6; padding-top: 6px; }
+
+  .download-banner { background: var(--teal-xl); border: 1px solid rgba(204,255,51,0.2); border-radius: var(--radius-lg); padding: 2rem; margin-top: 1.25rem; }
+  .dl-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .dl-info h3 { font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 6px; }
+  .dl-info p { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.5; }
+  .dl-meta { display: flex; gap: 8px; flex-wrap: wrap; padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.08); }
+  .dl-chip { font-size: 11px; background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.55); padding: 5px 12px; border-radius: 100px; border: 1px solid rgba(255,255,255,0.1); }
+  .btn-lime-lg { padding: 13px 28px; border-radius: var(--radius); background: var(--lime); color: var(--lime-text); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 14px; border: none; cursor: pointer; white-space: nowrap; transition: filter 0.15s; flex-shrink: 0; }
+  .btn-lime-lg:hover { filter: brightness(1.07); }
+  .btn-lime-lg:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* TEMPLATE PREVIEW BANNER */
+  .template-banner { background: rgba(255,255,255,0.05); border: 1px solid rgba(204,255,51,0.2); border-radius: var(--radius); padding: 10px 18px; display: inline-flex; align-items: center; gap: 14px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
+  .template-banner span { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .btn-template { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; border-radius: var(--radius); background: transparent; border: 1.5px solid var(--lime); color: var(--lime); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none; transition: all 0.15s; letter-spacing: 0.3px; }
+  .btn-template:hover { background: var(--lime); color: var(--lime-text); }
+
+  footer { text-align: center; padding: 2rem; font-size: 12px; color: var(--text-soft); border-top: 1px solid var(--border); }
+  footer strong { color: var(--teal); }
+
+  @media (max-width: 640px) {
+    .grid2, .grid3, .result-grid2, .rec-grid, .metrics-mini { grid-template-columns: 1fr; }
+    .slider-row { grid-template-columns: 130px 1fr 40px; }
+    .hero h1 { font-size: 1.9rem; }
+    .hero-step-div { display: none; }
+    main { padding: 1.5rem 1rem 4rem; }
+    .card { padding: 1.25rem; }
+    nav { padding: 0 1rem; }
+    .result-client-right, .dl-top { flex-direction: column; }
+    .eng-highlight { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">LC</div>
+    <div>
+      <div class="nav-logo-name">Leandro Coser</div>
+      <div class="nav-logo-sub">ESTRATEGISTA DIGITAL</div>
+    </div>
+  </div>
+  <div class="nav-badge">ANÁLISE INSTAGRAM IA</div>
+</nav>
+
+<div class="hero">
+  <div class="hero-tag">FERRAMENTA EXCLUSIVA</div>
+  <h1>Diagnóstico de Perfil<br><span>Instagram com IA</span></h1>
+  <p>Análise completa baseada em dados <strong style="color:var(--lime);font-weight:600;">100% públicos</strong> — sem precisar de acesso à conta.</p>
+  <div class="hero-note">👁 Tudo o que você preenche é visível publicamente no perfil</div>
+  <div class="hero-steps">
+    <div class="hero-step"><div class="hero-step-n">1</div><div class="hero-step-label">Perfil público</div></div>
+    <div class="hero-step-div"></div>
+    <div class="hero-step"><div class="hero-step-n">2</div><div class="hero-step-label">Feed observado</div></div>
+    <div class="hero-step-div"></div>
+    <div class="hero-step"><div class="hero-step-n">3</div><div class="hero-step-label">IA analisa</div></div>
+    <div class="hero-step-div"></div>
+    <div class="hero-step"><div class="hero-step-n">4</div><div class="hero-step-label">PPTX pronto</div></div>
+  </div>
+  <div class="template-banner">
+    <span>📎 Quer ver como fica a apresentação antes de usar?</span>
+    <a class="btn-template" href="template.pptx" download>⬇ Baixar modelo de exemplo</a>
+  </div>
+</div>
+
+<main>
+
+  <div class="api-card">
+    <div class="api-icon">🔑</div>
+    <div class="api-info">
+      <p>Chave de API Anthropic</p>
+      <span>Necessária para a análise com IA · console.anthropic.com</span>
+    </div>
+    <div class="api-input-wrap">
+      <input type="password" class="api-input" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off">
+      <button class="api-save" onclick="salvarChave()">Salvar</button>
+    </div>
+    <span class="api-status" id="apiStatus">✓ Chave salva</span>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressBar"></div></div>
+    <div class="progress-steps">
+      <div class="prog-step active" id="ps1"><div class="prog-step-n">1</div><div class="prog-step-label">Perfil</div></div>
+      <div class="prog-step" id="ps2"><div class="prog-step-n">2</div><div class="prog-step-label">Feed</div></div>
+      <div class="prog-step" id="ps3"><div class="prog-step-n">3</div><div class="prog-step-label">Resultado</div></div>
+    </div>
+  </div>
+
+  <!-- PANEL 1 -->
+  <div id="panel1" class="panel active">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot"></div>
+        <div class="card-title">Dados Públicos do Perfil</div>
+        <div class="card-sub">Visível em instagram.com/@username</div>
+      </div>
+      <div class="info-box">
+        <p>💡 Abra <strong>instagram.com/@username</strong> no navegador (sem login) e preencha o que aparece na tela do perfil.</p>
+      </div>
+
+      <div class="grid2" style="margin-bottom:1.5rem">
+        <div class="field">
+          <label>Nome do cliente / marca</label>
+          <input type="text" id="nomeCliente" placeholder="Nome exibido no perfil">
+        </div>
+        <div class="field">
+          <label>Username <span class="label-hint">(sem @)</span></label>
+          <input type="text" id="username" placeholder="username">
+        </div>
+        <div class="field">
+          <label>Tipo de conta <span class="label-hint">(aparece abaixo do nome)</span></label>
+          <select id="tipoConta">
+            <option value="Business">Conta Profissional / Business</option>
+            <option value="Creator">Creator</option>
+            <option value="Pessoal">Pessoal (sem indicação)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Nicho / segmento</label>
+          <input type="text" id="nicho" placeholder="Ex: Estética, Fitness, Restaurante...">
+        </div>
+      </div>
+
+      <div class="section-label">Contadores — visíveis no topo do perfil</div>
+      <div class="grid3" style="margin-bottom:1.5rem">
+        <div class="field">
+          <label>Seguidores</label>
+          <input type="text" id="seguidores" placeholder="Ex: 12.400 ou 12,4k">
+        </div>
+        <div class="field">
+          <label>Seguindo</label>
+          <input type="text" id="seguindo" placeholder="Ex: 856">
+        </div>
+        <div class="field">
+          <label>Posts publicados</label>
+          <input type="text" id="posts" placeholder="Ex: 247">
+        </div>
+      </div>
+
+      <div class="section-label">Bio e apresentação pública</div>
+      <div class="grid2">
+        <div class="field full">
+          <label>Texto da bio <span class="label-hint">(copie exatamente como está)</span></label>
+          <textarea id="bio" placeholder="Cole o texto completo da bio aqui..."></textarea>
+        </div>
+        <div class="field">
+          <label>Link na bio</label>
+          <select id="linkBio">
+            <option value="Link direto para site ou WhatsApp">Link direto (site ou WhatsApp)</option>
+            <option value="Linktree ou link agregador">Linktree / link agregador</option>
+            <option value="Sem link na bio">Sem link</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Foto de perfil</label>
+          <select id="fotoPerfil">
+            <option value="Logo ou identidade visual profissional">Logo profissional</option>
+            <option value="Foto pessoal profissional">Foto pessoal profissional</option>
+            <option value="Foto pessoal informal">Foto pessoal informal</option>
+            <option value="Imagem genérica ou sem rosto">Imagem genérica</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Destaques (Highlights)</label>
+          <select id="highlights">
+            <option value="Nenhum destaque">Nenhum</option>
+            <option value="1 a 3 destaques">1 a 3 destaques</option>
+            <option value="4 a 7 destaques organizados">4 a 7, organizados</option>
+            <option value="8 ou mais destaques">8 ou mais</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label>Objetivo aparente do perfil <span class="label-hint">(o que a bio e o visual sugerem)</span></label>
+          <input type="text" id="objetivo" placeholder="Ex: Vender serviços, atrair clientes para estética, posicionar autoridade no nicho...">
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <span style="font-size:12px;color:var(--text-soft)">Passo 1 de 2</span>
+      <button class="btn btn-primary" onclick="goStep(2)">Próximo — Análise do Feed →</button>
+    </div>
+  </div>
+
+  <!-- PANEL 2 -->
+  <div id="panel2" class="panel">
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot"></div>
+        <div class="card-title">Engajamento Observado</div>
+        <div class="card-sub">Abra os últimos 9 posts</div>
+      </div>
+      <div class="info-box">
+        <p>📊 Veja os últimos 9–12 posts e anote a <strong>quantidade de likes e comentários visíveis</strong>. Com isso a IA calcula a <strong>taxa de engajamento estimada</strong> — sem precisar de acesso à conta.</p>
+      </div>
+      <div class="grid3" style="margin-bottom:1rem">
+        <div class="field">
+          <label>Média de likes por post</label>
+          <input type="number" id="avgLikes" placeholder="Ex: 340" min="0" oninput="calcEng()">
+        </div>
+        <div class="field">
+          <label>Média de comentários por post</label>
+          <input type="number" id="avgComments" placeholder="Ex: 18" min="0" oninput="calcEng()">
+        </div>
+        <div class="field">
+          <label>Média de views nos Reels</label>
+          <input type="text" id="avgViews" placeholder="Ex: 2.500 ou N/A">
+        </div>
+      </div>
+      <div class="eng-box">
+        <div class="eng-row">
+          <div>
+            <div class="eng-label">Taxa de engajamento estimada</div>
+            <div class="eng-note" id="engNote">Preencha os campos acima e os seguidores (passo 1) para calcular</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div class="eng-value" id="engValDisplay">—</div>
+            <div class="eng-badge" id="engRating"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot"></div>
+        <div class="card-title">Tipos de Conteúdo no Feed</div>
+        <div class="card-sub">Marque o que você vê</div>
+      </div>
+      <div class="check-grid">
+        <div class="check-opt"><input type="checkbox" id="cf1"><label for="cf1">Fotos estáticas</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf2"><label for="cf2">Reels</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf3"><label for="cf3">Carrosséis</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf4"><label for="cf4">Vídeos no feed</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf5"><label for="cf5">Before & After</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf6"><label for="cf6">Depoimentos</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf7"><label for="cf7">Bastidores</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf8"><label for="cf8">Conteúdo educativo</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf9"><label for="cf9">Promoções</label></div>
+        <div class="check-opt"><input type="checkbox" id="cf10"><label for="cf10">Parcerias / colabs</label></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot"></div>
+        <div class="card-title">Avaliação Visual</div>
+        <div class="card-sub">O que você vê como visitante</div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-row">
+          <span class="slider-lbl">Qualidade visual geral</span>
+          <input type="range" min="1" max="10" value="5" step="1" id="slQual" oninput="syncSlider(this,'vQual')">
+          <div class="slider-val" id="vQual">5</div>
+        </div>
+        <div class="slider-row">
+          <span class="slider-lbl">Identidade visual / paleta</span>
+          <input type="range" min="1" max="10" value="5" step="1" id="slId" oninput="syncSlider(this,'vId')">
+          <div class="slider-val" id="vId">5</div>
+        </div>
+        <div class="slider-row">
+          <span class="slider-lbl">Variedade de formatos</span>
+          <input type="range" min="1" max="10" value="5" step="1" id="slVar" oninput="syncSlider(this,'vVar')">
+          <div class="slider-val" id="vVar">5</div>
+        </div>
+        <div class="slider-row">
+          <span class="slider-lbl">Frequência de posts</span>
+          <input type="range" min="1" max="10" value="5" step="1" id="slFreq" oninput="syncSlider(this,'vFreq')">
+          <div class="slider-val" id="vFreq">5</div>
+        </div>
+        <div class="slider-row">
+          <span class="slider-lbl">Qualidade das legendas</span>
+          <input type="range" min="1" max="10" value="5" step="1" id="slLeg" oninput="syncSlider(this,'vLeg')">
+          <div class="slider-val" id="vLeg">5</div>
+        </div>
+        <div class="slider-row">
+          <span class="slider-lbl">Uso de hashtags</span>
+          <input type="range" min="1" max="10" value="5" step="1" id="slHash" oninput="syncSlider(this,'vHash')">
+          <div class="slider-val" id="vHash">5</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-dot"></div>
+        <div class="card-title">Observações</div>
+        <div class="card-sub">Opcional</div>
+      </div>
+      <div class="field">
+        <label>O que mais chamou atenção ao navegar pelo perfil?</label>
+        <textarea id="observacoes" placeholder="Ex: Feed sem padrão visual. Poucos Reels. Comentários com perguntas sem resposta. Bio confusa sem CTA. Último post há 3 semanas..."></textarea>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn" onclick="goStep(1)">← Voltar</button>
+      <button class="btn btn-primary" onclick="analisarPerfil()"><span>Analisar com IA</span><span>✦</span></button>
+    </div>
+  </div>
+
+  <!-- PANEL 3 -->
+  <div id="panel3" class="panel">
+
+    <div id="loadingCard" class="loading-card" style="display:none">
+      <div class="spinner-wrap"><div class="spinner"></div><div class="spinner-dot"></div></div>
+      <h3>Analisando perfil com IA...</h3>
+      <p>Gerando diagnóstico com base nos dados públicos observados</p>
+    </div>
+
+    <div id="resultContent" style="display:none">
+
+      <div class="result-client-bar">
+        <div class="result-client-left">
+          <div class="result-avatar" id="rAvatar">?</div>
+          <div>
+            <div class="result-client-name" id="rNomeHeader">—</div>
+            <div class="result-client-meta" id="rUsernameHeader">—</div>
+          </div>
+        </div>
+        <div class="result-client-right">
+          <span class="result-chip lime" id="rNichoChip">—</span>
+          <span class="result-chip" id="rDataChip">—</span>
+        </div>
+      </div>
+
+      <div class="result-grid2">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header"><div class="card-dot"></div><div class="card-title">Diagnóstico Visual</div></div>
+          <div id="scoresContainer"></div>
+          <div class="resumo-box" id="rResumo"></div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header"><div class="card-dot"></div><div class="card-title">Métricas Públicas</div></div>
+          <div class="metrics-mini" id="metricsGrid"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-dot"></div><div class="card-title">Análise de Conteúdo</div></div>
+        <div id="rConteudo" class="tag-grid"></div>
+      </div>
+
+      <div class="result-grid2">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header"><div class="card-dot"></div><div class="card-title">Pontos Fortes</div></div>
+          <div id="rFortes" class="tag-grid"></div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-header"><div class="card-dot"></div><div class="card-title">Pontos de Melhoria</div></div>
+          <div id="rMelhoria" class="tag-grid"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-dot"></div><div class="card-title">Recomendações Estratégicas</div></div>
+        <div id="rRecs" class="rec-grid"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-dot"></div><div class="card-title">Plano de Ação</div></div>
+        <div id="rPlano"></div>
+      </div>
+
+      <div class="download-banner">
+        <div class="dl-top">
+          <div class="dl-info">
+            <h3>Apresentação pronta para download</h3>
+            <p>10 slides profissionais com identidade visual Leandro Coser,<br>personalizados com os dados públicos e análise deste cliente.</p>
+          </div>
+          <button class="btn-lime-lg" id="btnDownload" onclick="gerarPPTX()">⬇ Gerar e Baixar PPTX</button>
+        </div>
+        <div class="dl-meta">
+          <span class="dl-chip">Capa personalizada</span>
+          <span class="dl-chip">Métricas públicas</span>
+          <span class="dl-chip">Engajamento estimado</span>
+          <span class="dl-chip">Análise do feed</span>
+          <span class="dl-chip">Pontos fortes e melhorias</span>
+          <span class="dl-chip">4 Recomendações estratégicas</span>
+          <span class="dl-chip">Plano de ação 3 meses</span>
+          <span class="dl-chip">Slide de encerramento</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-start;margin-top:1rem;">
+        <button class="btn" onclick="resetar()">← Nova Análise</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Desenvolvido por <strong>Leandro Coser</strong> — Estrategista de Conteúdo Digital &nbsp;·&nbsp; leandrocoser.com.br
+</footer>
+
+<script>
+let analise = null, dadosForm = null;
+let apiKey = localStorage.getItem('lc_api_key') || '';
+if (apiKey) document.getElementById('apiKey').value = apiKey;
+
+function salvarChave() {
+  apiKey = document.getElementById('apiKey').value.trim();
+  if (!apiKey) return;
+  localStorage.setItem('lc_api_key', apiKey);
+  const st = document.getElementById('apiStatus');
+  st.style.display = 'inline';
+  setTimeout(() => st.style.display = 'none', 3000);
+}
+
+function syncSlider(el, vid) {
+  document.getElementById(vid).textContent = el.value;
+  el.style.setProperty('--pct', ((el.value - 1) / 9 * 100) + '%');
+}
+document.querySelectorAll('input[type=range]').forEach(el =>
+  el.style.setProperty('--pct', ((el.value - 1) / 9 * 100) + '%')
+);
+
+function parseSeg(str) {
+  if (!str) return 0;
+  str = str.toString().replace(/\s/g,'').replace(',','.');
+  if (/k/i.test(str)) return parseFloat(str) * 1000;
+  if (/m/i.test(str)) return parseFloat(str) * 1000000;
+  return parseFloat(str.replace(/\./g,'')) || 0;
+}
+
+function calcEng() {
+  const seg = parseSeg(document.getElementById('seguidores').value);
+  const likes = parseFloat(document.getElementById('avgLikes').value) || 0;
+  const coms  = parseFloat(document.getElementById('avgComments').value) || 0;
+  const valEl = document.getElementById('engValDisplay');
+  const noteEl = document.getElementById('engNote');
+  const ratingEl = document.getElementById('engRating');
+  if (!seg || !likes) {
+    valEl.textContent = '—';
+    noteEl.textContent = 'Preencha seguidores (passo 1) e médias de likes/comentários';
+    ratingEl.style.display = 'none';
+    return;
+  }
+  const eng = ((likes + coms) / seg) * 100;
+  valEl.textContent = eng.toFixed(2) + '%';
+  noteEl.textContent = `(${likes.toFixed(0)} likes + ${coms.toFixed(0)} comentários) ÷ ${seg.toLocaleString('pt-BR')} seguidores × 100`;
+  ratingEl.style.display = 'inline-block';
+  const classes = { Excelente: ['#c8e6c9','#1b5e20'], Bom: ['#dcedc8','#33691e'], Médio: ['#fff9c4','#5d4000'], Baixo: ['#ffccbc','#bf360c'] };
+  const label = eng >= 6 ? 'Excelente' : eng >= 3 ? 'Bom' : eng >= 1 ? 'Médio' : 'Baixo';
+  ratingEl.textContent = label;
+  ratingEl.style.background = classes[label][0];
+  ratingEl.style.color = classes[label][1];
+}
+
+function getFormatos() {
+  const labels = ['Fotos estáticas','Reels','Carrosséis','Vídeos no feed','Before & After','Depoimentos','Bastidores','Conteúdo educativo','Promoções','Parcerias/colabs'];
+  return labels.filter((_, i) => document.getElementById('cf'+(i+1)).checked);
+}
+
+function goStep(n) {
+  [1,2,3].forEach(i => {
+    document.getElementById('panel'+i).classList.toggle('active', i===n);
+    document.getElementById('ps'+i).classList.toggle('active', i===n);
+    if (i < n) document.getElementById('ps'+i).classList.add('done');
+  });
+  document.getElementById('progressBar').style.width = {1:'33%',2:'66%',3:'100%'}[n];
+  window.scrollTo({top: document.querySelector('main').offsetTop - 80, behavior:'smooth'});
+}
+
+function getDados() {
+  const seg = document.getElementById('seguidores').value.trim();
+  const segN = parseSeg(seg);
+  const likes = parseFloat(document.getElementById('avgLikes').value) || 0;
+  const coms  = parseFloat(document.getElementById('avgComments').value) || 0;
+  const engEst = segN > 0 && likes > 0 ? ((likes + coms) / segN * 100).toFixed(2) + '%' : 'Não calculado';
+  const engN   = segN > 0 && likes > 0 ? ((likes + coms) / segN * 100) : 0;
+  const engLabel = engN >= 6 ? 'Excelente' : engN >= 3 ? 'Bom' : engN >= 1 ? 'Médio' : engEst === 'Não calculado' ? '—' : 'Baixo';
+  return {
+    nomeCliente:  document.getElementById('nomeCliente').value.trim() || 'Cliente',
+    username:     document.getElementById('username').value.trim() || 'perfil',
+    tipoConta:    document.getElementById('tipoConta').value,
+    nicho:        document.getElementById('nicho').value.trim() || 'Geral',
+    bio:          document.getElementById('bio').value.trim() || '—',
+    linkBio:      document.getElementById('linkBio').value,
+    fotoPerfil:   document.getElementById('fotoPerfil').value,
+    highlights:   document.getElementById('highlights').value,
+    objetivo:     document.getElementById('objetivo').value.trim() || '—',
+    seguidores:   seg || '—',
+    seguindo:     document.getElementById('seguindo').value.trim() || '—',
+    posts:        document.getElementById('posts').value.trim() || '—',
+    avgLikes:     likes > 0 ? likes.toFixed(0) : '—',
+    avgComments:  coms > 0 ? coms.toFixed(0) : '—',
+    avgViews:     document.getElementById('avgViews').value.trim() || 'N/A',
+    engEstimado:  engEst,
+    engLabel,
+    formatos:     getFormatos().join(', ') || 'Não informado',
+    qualidade:    document.getElementById('slQual').value,
+    identidade:   document.getElementById('slId').value,
+    variedade:    document.getElementById('slVar').value,
+    frequencia:   document.getElementById('slFreq').value,
+    legendas:     document.getElementById('slLeg').value,
+    hashtags:     document.getElementById('slHash').value,
+    observacoes:  document.getElementById('observacoes').value.trim() || '',
+    data:         new Date().toLocaleDateString('pt-BR')
+  };
+}
+
+async function analisarPerfil() {
+  if (!apiKey) { alert('⚠️ Insira sua chave de API da Anthropic no campo acima antes de analisar.'); return; }
+  goStep(3);
+  document.getElementById('loadingCard').style.display = 'block';
+  document.getElementById('resultContent').style.display = 'none';
+  dadosForm = getDados();
+  const d = dadosForm;
+
+  const prompt = `Você é Leandro Coser, estrategista de conteúdo digital. Analise este perfil do Instagram com base exclusivamente em dados PÚBLICOS (visíveis sem login). Retorne SOMENTE JSON válido, sem texto extra.
+
+DADOS PÚBLICOS:
+- Cliente: ${d.nomeCliente} | @${d.username} | ${d.tipoConta} | Nicho: ${d.nicho}
+- Bio: "${d.bio}"
+- Link na bio: ${d.linkBio} | Foto: ${d.fotoPerfil} | Destaques: ${d.highlights}
+- Objetivo aparente: ${d.objetivo}
+- Seguidores: ${d.seguidores} | Seguindo: ${d.seguindo} | Posts: ${d.posts}
+- Média de likes/post: ${d.avgLikes} | Média comentários/post: ${d.avgComments}
+- Média views Reels: ${d.avgViews}
+- Taxa de engajamento estimada: ${d.engEstimado} (${d.engLabel})
+- Formatos de conteúdo observados: ${d.formatos}
+
+AVALIAÇÃO VISUAL DO FEED (1–10):
+Qualidade visual: ${d.qualidade} | Identidade visual: ${d.identidade} | Variedade: ${d.variedade}
+Frequência: ${d.frequencia} | Legendas: ${d.legendas} | Hashtags: ${d.hashtags}
+
+OBSERVAÇÕES DO CONSULTOR:
+${d.observacoes || 'Nenhuma.'}
+
+Retorne SOMENTE este JSON:
+{
+  "analiseConteudo": ["obs 1","obs 2","obs 3","obs 4","obs 5","obs 6"],
+  "pontosFortes": ["forte 1","forte 2","forte 3","forte 4","forte 5"],
+  "pontosMelhoria": ["melhoria 1","melhoria 2","melhoria 3","melhoria 4","melhoria 5"],
+  "recomendacoes": [
+    {"titulo":"Título","desc":"Descrição acionável"},
+    {"titulo":"Título","desc":"Descrição acionável"},
+    {"titulo":"Título","desc":"Descrição acionável"},
+    {"titulo":"Título","desc":"Descrição acionável"}
+  ],
+  "planoAcao": [
+    {"prazo":"Semana 1","acao":"Ação específica"},
+    {"prazo":"Semana 2","acao":"Ação específica"},
+    {"prazo":"Semana 3","acao":"Ação específica"},
+    {"prazo":"Mês 2","acao":"Ação estratégica"},
+    {"prazo":"Mês 3","acao":"Revisão e escala"}
+  ],
+  "resumoDiagnostico":"Uma frase resumindo o maior problema e oportunidade visíveis publicamente."
+}`;
+
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role: 'user', content: prompt }] })
+    });
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error.message);
+    analise = JSON.parse(data.content.map(i=>i.text||'').join('').replace(/```json|```/g,'').trim());
+    mostrarResultado(dadosForm, analise);
+  } catch(e) {
+    document.getElementById('loadingCard').innerHTML = `
+      <p style="color:#c62828;font-size:14px;margin-bottom:10px">⚠️ Erro ao processar</p>
+      <p style="font-size:12px;color:var(--text-soft);margin-bottom:16px">${e.message||'Verifique sua chave de API.'}</p>
+      <button class="btn" onclick="goStep(2)">← Voltar</button>`;
+  }
+}
+
+function mostrarResultado(d, a) {
+  document.getElementById('loadingCard').style.display = 'none';
+  document.getElementById('resultContent').style.display = 'block';
+
+  document.getElementById('rAvatar').textContent = d.nomeCliente.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  document.getElementById('rNomeHeader').textContent = d.nomeCliente;
+  document.getElementById('rUsernameHeader').textContent = '@'+d.username+' · '+d.tipoConta+' · '+d.nicho;
+  document.getElementById('rNichoChip').textContent = d.nicho;
+  document.getElementById('rDataChip').textContent = d.data;
+
+  const segN = parseSeg(d.seguidores);
+  const segF = parseSeg(d.seguindo);
+  const relSF = segN > 0 && segF > 0 ? (segN/segF).toFixed(1)+'x' : '—';
+  const engN = parseFloat(d.engEstimado) || 0;
+  const engLabel = d.engLabel;
+
+  document.getElementById('metricsGrid').innerHTML = `
+    <div class="metric-mini"><div class="metric-mini-label">Seguidores</div><div class="metric-mini-value">${d.seguidores}</div><div class="metric-mini-sub">público</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Seguindo</div><div class="metric-mini-value">${d.seguindo}</div><div class="metric-mini-sub">público</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Posts</div><div class="metric-mini-value">${d.posts}</div><div class="metric-mini-sub">no feed</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Autoridade</div><div class="metric-mini-value">${relSF}</div><div class="metric-mini-sub">seg÷seguindo</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Média Likes</div><div class="metric-mini-value">${d.avgLikes}</div><div class="metric-mini-sub">por post</div></div>
+    <div class="metric-mini"><div class="metric-mini-label">Média Comentários</div><div class="metric-mini-value">${d.avgComments}</div><div class="metric-mini-sub">por post</div></div>
+    <div class="eng-highlight">
+      <div>
+        <div class="eng-highlight-label">Taxa de engajamento estimada (pública)</div>
+        <div class="eng-highlight-sub">Fórmula: (likes + comentários) ÷ seguidores × 100</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="eng-highlight-val">${d.engEstimado}</div>
+        <div class="eng-highlight-badge">${engLabel}</div>
+      </div>
+    </div>`;
+
+  const scores = [['Qualidade visual',d.qualidade],['Identidade visual',d.identidade],['Variedade',d.variedade],['Frequência',d.frequencia],['Legendas',d.legendas],['Hashtags',d.hashtags]];
+  document.getElementById('scoresContainer').innerHTML = scores.map(([l,v]) => {
+    const pct = Math.round(v*10);
+    const c = pct>=70?'#0D7860':pct>=40?'#d97706':'#dc2626';
+    const bg = pct>=70?'rgba(13,120,96,0.08)':pct>=40?'rgba(217,119,6,0.08)':'rgba(220,38,38,0.08)';
+    return `<div class="score-row"><span class="score-lbl">${l}</span><div class="score-track"><div class="score-fill" style="width:${pct}%;background:${c}"></div></div><span class="score-num" style="color:${c};background:${bg}">${v}/10</span></div>`;
+  }).join('');
+  document.getElementById('rResumo').textContent = a.resumoDiagnostico||'';
+
+  document.getElementById('rConteudo').innerHTML = (a.analiseConteudo||[]).map(t=>`<span class="tag tag-info">${t}</span>`).join('');
+  document.getElementById('rFortes').innerHTML = (a.pontosFortes||[]).map(t=>`<span class="tag tag-ok">✓ ${t}</span>`).join('');
+  document.getElementById('rMelhoria').innerHTML = (a.pontosMelhoria||[]).map(t=>`<span class="tag tag-warn">! ${t}</span>`).join('');
+  document.getElementById('rRecs').innerHTML = (a.recomendacoes||[]).map((r,i)=>`<div class="rec-card"><div class="rec-card-top"><div class="rec-num">${String(i+1).padStart(2,'0')}</div><h4>${r.titulo}</h4></div><p>${r.desc}</p></div>`).join('');
+
+  const acoes = a.planoAcao||[];
+  document.getElementById('rPlano').innerHTML = acoes.map((p,i)=>`
+    <div class="plano-item">
+      <div class="plano-num-wrap">
+        <div class="plano-circle ${i===0?'first':'rest'}">${i+1}</div>
+        ${i<acoes.length-1?'<div class="plano-line"></div>':''}
+      </div>
+      <div style="flex:1;padding-top:4px;">
+        <span class="action-badge">${p.prazo}</span>
+        <div class="action-text">${p.acao}</div>
+      </div>
+    </div>`).join('');
+}
+
+async function gerarPPTX() {
+  if (!analise||!dadosForm) return;
+  const btn = document.getElementById('btnDownload');
+  btn.textContent='Gerando...'; btn.disabled=true;
+  const d=dadosForm, a=analise;
+  const T='0D7860',TD2='085444',L='CCFF33',W='FFFFFF',BG='F2F7F5',TX='0f1f1b',TM='3D6B5E',TS='7DAA9A';
+
+  const pres=new PptxGenJS();
+  pres.layout='LAYOUT_16x9'; pres.author='Leandro Coser';
+  pres.title='Análise Instagram - '+d.nomeCliente;
+
+  const lm=s=>{
+    s.addShape('ellipse',{x:8.75,y:4.92,w:0.9,h:0.9,fill:{color:L,transparency:90},line:{color:L,width:1.5}});
+    s.addText('LC',{x:8.75,y:4.92,w:0.8,h:0.8,fontSize:18,bold:true,color:T,align:'center',valign:'middle',margin:0});
+    s.addText('LEANDRO COSER',{x:8.58,y:5.72,w:1.14,h:0.2,fontSize:6,bold:true,color:TM,align:'center',charSpacing:1,margin:0});
+  };
+  const hdr=(s,t,sub='')=>{
+    s.addShape('rect',{x:0,y:0,w:10,h:1.1,fill:{color:T}});
+    s.addText(t,{x:0.5,y:0.15,w:8.5,h:0.55,fontSize:24,bold:true,color:W,align:'left',valign:'middle',margin:0});
+    if(sub) s.addText(sub,{x:0.5,y:0.68,w:8,h:0.3,fontSize:11,color:L,align:'left',margin:0});
+    s.addShape('rect',{x:0.5,y:1.0,w:0.8,h:0.06,fill:{color:L}});
+  };
+  const li=(s,text,x,y,type)=>{
+    const cc={check:'22C55E',warning:'F59E0B'};
+    const ic={check:'✓',warning:'!'};
+    s.addShape('ellipse',{x,y:y+0.02,w:0.28,h:0.28,fill:{color:cc[type],transparency:15}});
+    s.addText(ic[type],{x,y:y+0.02,w:0.28,h:0.28,fontSize:10,bold:true,color:W,align:'center',valign:'middle',margin:0});
+    s.addText(text,{x:x+0.38,y,w:5.8,h:0.35,fontSize:12,color:TX,align:'left',valign:'middle',margin:0});
+  };
+
+  // S1 Capa
+  {const s=pres.addSlide();s.background={color:T};
+  s.addShape('rect',{x:0,y:0,w:0.18,h:5.625,fill:{color:L}});
+  s.addShape('rect',{x:0,y:4.5,w:10,h:1.125,fill:{color:TD2}});
+  s.addShape('ellipse',{x:6.8,y:-1.2,w:4.5,h:4.5,fill:{color:W,transparency:93},line:{color:L,width:1}});
+  s.addText('LC',{x:0.45,y:0.5,w:1.2,h:1.0,fontSize:42,bold:true,color:L,align:'center',valign:'middle',margin:0});
+  s.addText('LEANDRO COSER',{x:0.3,y:1.42,w:1.5,h:0.25,fontSize:7,bold:true,color:W,align:'center',charSpacing:1.5,margin:0});
+  s.addShape('rect',{x:0.5,y:2.0,w:3.4,h:0.38,fill:{color:L}});
+  s.addText('ANÁLISE · DADOS PÚBLICOS',{x:0.5,y:2.0,w:3.4,h:0.38,fontSize:10,bold:true,color:T,align:'center',valign:'middle',margin:0,charSpacing:1});
+  s.addText('Instagram',{x:0.5,y:2.5,w:3.4,h:0.4,fontSize:16,color:W,align:'center',margin:0});
+  s.addText(d.nomeCliente,{x:0.4,y:2.95,w:9.2,h:1.2,fontSize:38,bold:true,color:W,align:'left',valign:'middle',margin:0});
+  s.addText('@'+d.username,{x:0.4,y:4.05,w:5,h:0.38,fontSize:16,color:L,align:'left',margin:0});
+  s.addText('📅  '+d.data,{x:0.4,y:4.62,w:4,h:0.26,fontSize:11,color:W,align:'left',margin:0});
+  s.addText('Leandro Coser  |  Estrategista de Conteúdo Digital',{x:3.5,y:4.62,w:6,h:0.26,fontSize:11,color:TS,align:'right',margin:0});}
+
+  // S2 Perfil Público
+  {const s=pres.addSlide();s.background={color:BG};hdr(s,'Perfil Público','@'+d.username+' · '+d.nicho+' · dados observados sem acesso à conta');
+  s.addShape('rect',{x:0.4,y:1.35,w:4.5,h:3.8,fill:{color:W},shadow:{type:'outer',color:'000000',blur:10,offset:3,angle:135,opacity:0.07}});
+  s.addShape('rect',{x:0.4,y:1.35,w:4.5,h:0.08,fill:{color:T}});
+  s.addText('DADOS PÚBLICOS',{x:0.6,y:1.5,w:3,h:0.3,fontSize:9,bold:true,color:T,charSpacing:2,margin:0});
+  [['Bio',(d.bio||'').substring(0,55)+(d.bio.length>55?'…':'')],['Link na bio',d.linkBio],['Foto de perfil',d.fotoPerfil],['Destaques',d.highlights],['Objetivo',d.objetivo.substring(0,50)]].forEach(([l,v],i)=>{
+    const yy=1.9+i*0.58;
+    s.addText(l.toUpperCase(),{x:0.65,y:yy,w:1.4,h:0.22,fontSize:8,bold:true,color:TM,charSpacing:1,margin:0});
+    s.addText(v,{x:0.65,y:yy+0.22,w:4.0,h:0.28,fontSize:11,color:TX,margin:0});
+  });
+  const cols=[[5.2,1.35],[7.55,1.35],[5.2,2.95],[7.55,2.95]];
+  [[d.seguidores,'Seguidores',L],[d.seguindo,'Seguindo',T],[d.posts,'Posts',L],[d.engEstimado,'Eng. Estimado',T]].forEach(([v,l,acc],i)=>{
+    s.addShape('rect',{x:cols[i][0],y:cols[i][1],w:2.1,h:1.4,fill:{color:W},shadow:{type:'outer',color:'000000',blur:8,offset:3,angle:135,opacity:0.08}});
+    s.addShape('rect',{x:cols[i][0],y:cols[i][1],w:2.1,h:0.08,fill:{color:acc}});
+    s.addText(v,{x:cols[i][0],y:cols[i][1]+0.15,w:2.1,h:0.75,fontSize:24,bold:true,color:T,align:'center',valign:'middle',margin:0});
+    s.addText(l,{x:cols[i][0],y:cols[i][1]+0.9,w:2.1,h:0.4,fontSize:10,color:TM,align:'center',margin:0});
+  });
+  s.addShape('rect',{x:5.2,y:4.45,w:4.45,h:0.7,fill:{color:T,transparency:92}});
+  s.addShape('rect',{x:5.2,y:4.45,w:0.06,h:0.7,fill:{color:L}});
+  s.addText(a.resumoDiagnostico||'',{x:5.38,y:4.5,w:4.2,h:0.6,fontSize:10,color:TX,italic:true,margin:0});
+  lm(s);}
+
+  // S3 Engajamento
+  {const s=pres.addSlide();s.background={color:BG};hdr(s,'Engajamento Observado','Estimativa calculada a partir de dados visíveis publicamente');
+  s.addShape('rect',{x:0.4,y:1.3,w:9.2,h:1.55,fill:{color:T}});
+  s.addText('TAXA DE ENGAJAMENTO ESTIMADA',{x:0.65,y:1.4,w:6,h:0.28,fontSize:9,bold:true,color:L,charSpacing:2,margin:0});
+  s.addText(d.engEstimado,{x:0.65,y:1.65,w:3.5,h:0.9,fontSize:44,bold:true,color:W,align:'left',margin:0});
+  s.addShape('rect',{x:4.5,y:1.6,w:1.3,h:0.4,fill:{color:L}});
+  s.addText(d.engLabel,{x:4.5,y:1.6,w:1.3,h:0.4,fontSize:12,bold:true,color:T,align:'center',valign:'middle',margin:0});
+  s.addText('Fórmula: (média likes + média comentários) ÷ seguidores × 100\nDados 100% públicos, observados diretamente no feed do perfil',{x:4.5,y:2.08,w:5.0,h:0.65,fontSize:10,color:W,italic:true,margin:0});
+  [[d.avgLikes,'Média Likes/Post',L],[d.avgComments,'Média Comentários',T],[d.avgViews,'Média Views Reels',L],[d.posts,'Total de Posts',T]].forEach(([v,l,acc],i)=>{
+    const xx=0.4+i*2.3;
+    s.addShape('rect',{x:xx,y:3.1,w:2.1,h:1.4,fill:{color:W},shadow:{type:'outer',color:'000000',blur:8,offset:3,angle:135,opacity:0.07}});
+    s.addShape('rect',{x:xx,y:3.1,w:2.1,h:0.07,fill:{color:acc}});
+    s.addText(v,{x:xx,y:3.25,w:2.1,h:0.75,fontSize:22,bold:true,color:T,align:'center',valign:'middle',margin:0});
+    s.addText(l,{x:xx,y:4.0,w:2.1,h:0.4,fontSize:9,color:TM,align:'center',margin:0});
+  });
+  s.addText('Formatos encontrados: '+d.formatos,{x:0.5,y:4.6,w:9,h:0.28,fontSize:10,color:TM,italic:true,margin:0});
+  lm(s);}
+
+  // S4 Feed Visual
+  {const s=pres.addSlide();s.background={color:BG};hdr(s,'Análise do Feed','Avaliação visual com base em observação pública do perfil');
+  const bars=[['Qualidade Visual',d.qualidade],['Identidade Visual',d.identidade],['Variedade Formatos',d.variedade],['Frequência Posts',d.frequencia],['Legendas',d.legendas],['Hashtags',d.hashtags]];
+  bars.forEach(([l,v],i)=>{
+    const yy=1.35+i*0.68,pct=Math.round(v*10);
+    const c=pct>=70?T:pct>=40?'F59E0B':'EF4444';
+    s.addText(l,{x:0.5,y:yy,w:2.4,h:0.3,fontSize:11,color:TX,bold:true,margin:0});
+    s.addShape('rect',{x:2.9,y:yy+0.05,w:6.5,h:0.25,fill:{color:TX,transparency:90}});
+    s.addShape('rect',{x:2.9,y:yy+0.05,w:Math.max((v/10)*6.5,0.1),h:0.25,fill:{color:c}});
+    s.addText(pct+'%',{x:9.5,y:yy,w:0.5,h:0.3,fontSize:11,bold:true,color:c,align:'right',margin:0});
+  });
+  lm(s);}
+
+  // S5 Conteúdo
+  {const s=pres.addSlide();s.background={color:BG};hdr(s,'Análise de Conteúdo','Padrões e tipos de conteúdo observados no perfil público');
+  (a.analiseConteudo||[]).slice(0,6).forEach((item,i)=>{
+    const col=i%2,row=Math.floor(i/2),x=col===0?0.4:5.2,y=1.4+row*1.35;
+    s.addShape('rect',{x,y,w:4.5,h:1.15,fill:{color:W},shadow:{type:'outer',color:'000000',blur:6,offset:2,angle:135,opacity:0.07}});
+    s.addShape('rect',{x,y,w:0.07,h:1.15,fill:{color:T}});
+    s.addText(String(i+1).padStart(2,'0'),{x:x+0.2,y:y+0.08,w:0.6,h:0.4,fontSize:20,bold:true,color:T,margin:0});
+    s.addText(item,{x:x+0.22,y:y+0.48,w:4.1,h:0.58,fontSize:11,color:TX,margin:0});
+  });lm(s);}
+
+  // S6 Fortes
+  {const s=pres.addSlide();s.background={color:BG};hdr(s,'Pontos Fortes','O que está funcionando bem e deve ser mantido');
+  s.addShape('rect',{x:6.8,y:1.25,w:3.0,h:4.15,fill:{color:T}});
+  s.addText('STRENGTHS',{x:6.8,y:1.35,w:3.0,h:0.5,fontSize:11,bold:true,color:L,align:'center',charSpacing:3,margin:0});
+  s.addText('✓',{x:7.3,y:1.9,w:2.0,h:1.5,fontSize:64,color:W,align:'center',margin:0});
+  s.addText('Capitalize\nem seus\npontos fortes',{x:6.85,y:3.4,w:2.9,h:1.6,fontSize:13,color:W,align:'center',italic:true,margin:0});
+  (a.pontosFortes||[]).slice(0,5).forEach((item,i)=>li(s,item,0.4,1.45+i*0.75,'check'));lm(s);}
+
+  // S7 Melhorias
+  {const s=pres.addSlide();s.background={color:BG};hdr(s,'Pontos de Melhoria','Oportunidades identificadas a partir da análise pública');
+  s.addShape('rect',{x:6.8,y:1.25,w:3.0,h:4.15,fill:{color:'F59E0B'}});
+  s.addText('MELHORIAS',{x:6.8,y:1.35,w:3.0,h:0.5,fontSize:11,bold:true,color:W,align:'center',charSpacing:3,margin:0});
+  s.addText('!',{x:7.3,y:1.9,w:2.0,h:1.5,fontSize:80,bold:true,color:W,align:'center',margin:0});
+  s.addText('Transforme\nfraquezas em\noportunidades',{x:6.85,y:3.4,w:2.9,h:1.6,fontSize:13,color:W,align:'center',italic:true,margin:0});
+  (a.pontosMelhoria||[]).slice(0,5).forEach((item,i)=>li(s,item,0.4,1.45+i*0.75,'warning'));lm(s);}
+
+  // S8 Recomendações
+  {const s=pres.addSlide();s.background={color:T};
+  s.addShape('rect',{x:0,y:0,w:0.18,h:5.625,fill:{color:L}});
+  s.addText('RECOMENDAÇÕES',{x:0.4,y:0.25,w:9.2,h:0.5,fontSize:11,bold:true,color:L,charSpacing:4,margin:0});
+  s.addText('ESTRATÉGICAS',{x:0.4,y:0.65,w:9.2,h:0.8,fontSize:36,bold:true,color:W,margin:0});
+  (a.recomendacoes||[]).slice(0,4).forEach((rec,i)=>{
+    const col=i%2,row=Math.floor(i/2),x=col===0?0.4:5.3,y=1.65+row*1.75;
+    s.addShape('rect',{x,y,w:4.5,h:1.5,fill:{color:'0A5444'},shadow:{type:'outer',color:'000000',blur:6,offset:2,angle:135,opacity:0.2}});
+    s.addShape('rect',{x,y,w:0.07,h:1.5,fill:{color:L}});
+    s.addText('0'+(i+1),{x:x+0.18,y:y+0.12,w:0.6,h:0.45,fontSize:20,bold:true,color:L,margin:0});
+    s.addText(rec.titulo,{x:x+0.18,y:y+0.55,w:4.15,h:0.3,fontSize:13,bold:true,color:L,margin:0});
+    s.addText(rec.desc,{x:x+0.18,y:y+0.88,w:4.15,h:0.5,fontSize:10,color:'DDFFF8',margin:0});
+  });
+  s.addShape('ellipse',{x:8.75,y:4.92,w:0.9,h:0.9,fill:{color:W,transparency:20},line:{color:W,width:1.5}});
+  s.addText('LC',{x:8.75,y:4.92,w:0.8,h:0.8,fontSize:18,bold:true,color:W,align:'center',valign:'middle',margin:0});}
+
+  // S9 Plano de Ação
+  {const s=pres.addSlide();s.background={color:BG};hdr(s,'Plano de Ação','Prioridades e próximos passos para implementação');
+  (a.planoAcao||[]).slice(0,5).forEach((item,i)=>{
+    const yy=1.45+i*0.78;
+    if(i<4)s.addShape('rect',{x:0.71,y:yy+0.45,w:0.04,h:0.35,fill:{color:T}});
+    s.addShape('ellipse',{x:0.45,y:yy+0.02,w:0.55,h:0.55,fill:{color:i===0?L:T}});
+    s.addText(String(i+1),{x:0.45,y:yy+0.02,w:0.55,h:0.55,fontSize:14,bold:true,color:i===0?T:W,align:'center',valign:'middle',margin:0});
+    s.addShape('rect',{x:1.2,y:yy+0.06,w:1.2,h:0.25,fill:{color:i===0?L:T,transparency:i===0?0:10}});
+    s.addText(item.prazo,{x:1.2,y:yy+0.06,w:1.2,h:0.25,fontSize:9,bold:true,color:i===0?T:W,align:'center',valign:'middle',margin:0});
+    s.addText(item.acao,{x:2.55,y:yy+0.04,w:7.0,h:0.52,fontSize:12,color:TX,align:'left',valign:'middle',margin:0});
+  });lm(s);}
+
+  // S10 Encerramento
+  {const s=pres.addSlide();s.background={color:T};
+  s.addShape('rect',{x:0,y:0,w:0.18,h:5.625,fill:{color:L}});
+  s.addShape('rect',{x:0,y:4.5,w:10,h:1.125,fill:{color:TD2}});
+  s.addShape('ellipse',{x:6.5,y:-1.5,w:5,h:5,fill:{color:W,transparency:95},line:{color:L,width:1}});
+  s.addText('LC',{x:0.4,y:0.5,w:1.5,h:1.2,fontSize:52,bold:true,color:L,align:'center',valign:'middle',margin:0});
+  s.addText('LEANDRO COSER',{x:0.25,y:1.6,w:1.8,h:0.25,fontSize:7,bold:true,color:W,align:'center',charSpacing:1.5,margin:0});
+  s.addText('Obrigado!',{x:0.4,y:2.1,w:9,h:1.0,fontSize:48,bold:true,color:W,align:'left',margin:0});
+  s.addText('Este diagnóstico foi produzido com base\nexclusivamente em dados públicos do perfil.',{x:0.4,y:3.05,w:7.5,h:0.9,fontSize:14,color:W,margin:0});
+  s.addText('Análise para: '+d.nomeCliente+'  ·  @'+d.username,{x:0.4,y:4.6,w:7,h:0.3,fontSize:10,color:TS,margin:0});
+  s.addText('leandrocoser.com.br',{x:6.5,y:4.6,w:3.2,h:0.3,fontSize:10,color:L,align:'right',margin:0});}
+
+  await pres.writeFile({fileName:'Analise_Instagram_'+d.nomeCliente.replace(/\s+/g,'_')+'.pptx'});
+  btn.textContent='⬇ Gerar e Baixar PPTX'; btn.disabled=false;
+}
+
+function resetar() {
+  analise=null; dadosForm=null;
+  document.getElementById('resultContent').style.display='none';
+  document.getElementById('loadingCard').style.display='none';
+  goStep(1);
+  ['ps1','ps2','ps3'].forEach(id=>document.getElementById(id).classList.remove('done'));
+}
+</script>
+</body>
+</html>
