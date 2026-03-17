@@ -72,7 +72,7 @@ A ferramenta usa o modelo Claude da Anthropic para gerar a análise.
 
 A ferramenta roda direto no navegador — sem servidor, sem banco de dados, sem instalação.
 
-🔗 **[Acessar a ferramenta]([https://seuusuario.github.io/analise-instagram](https://digitalconteudo.github.io/analise-instagram))**
+🔗 **[Acessar a ferramenta]((https://digitalconteudo.github.io/analise-instagram))**
 
 ---
 
