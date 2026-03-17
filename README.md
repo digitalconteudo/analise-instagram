@@ -113,3 +113,6 @@ A ferramenta roda direto no navegador — sem servidor, sem banco de dados, sem 
 <div align="center">
   <sub>Desenvolvido com IA · Identidade visual LC · © Leandro Coser</sub>
 </div>
+
+
+
